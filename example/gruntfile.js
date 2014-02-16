@@ -11,7 +11,10 @@ module.exports = function(grunt) {
                 options: {
                     outputImage: 'sprite/img/flags.png',
                     outputCss: 'sprite/css/flags.css',
-                    selector: '.flag'
+                    selector: '.flag',
+                    trim: {
+                        cssMargins: false
+                    }
                 },
                 files: {
                     'bin': 'src/img/flags/*'
@@ -36,7 +39,8 @@ module.exports = function(grunt) {
                             pixelRatio: 2,
                             outputImage: 'sprite/img/flags-ex@2x.png'
                         }
-                    }
+                    },
+                    trim: true
                 },
                 files: {
                     'bin': 'src/img/flags-2x/*'
@@ -68,7 +72,8 @@ module.exports = function(grunt) {
                                 return fullpath.indexOf( "-2x" ) >= 0;
                             }
                         }
-                    }
+                    },
+                    trim: false
                 },
                 files: {
                     'bin': 'src/img/**/*'
