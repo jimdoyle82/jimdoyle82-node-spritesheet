@@ -1,14 +1,14 @@
 {
-    "name": "node-spritesheet",
-    "description": "Sprite sheet generator for node.js",
-    "version": "0.4.2",
+    "name": "jimdoyle82-node-spritesheet",
+    "description": "Sprite sheet generator for node.js with trim features added by jimdoyle82. Forked from https://github.com/richardbutler/node-spritesheet.",
+    "version": "0.1.0",
     "author": {
-        "name": "Richard Butler",
-        "email": "rich@aspectvision.com"
+        "name": "Jim Doyle",
+        "email": "jimdoyle82@gmail.com"
     },
     "repository": {
         "type": "git",
-        "url": "http://github.com/richardbutler/node-spritesheet.git"
+        "url": "http://github.com/jimdoyle82/node-spritesheet"
     },
     "main": "./index",
     "scripts": {
