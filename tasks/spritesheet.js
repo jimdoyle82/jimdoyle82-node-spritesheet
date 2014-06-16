@@ -1,9 +1,18 @@
 var fs = require( "fs" );
+var _ = require( "underscore" );
+
+
 
 module.exports = function( grunt ) {
     "use strict";
 
-
+    /**
+     * Loads grunt-copy-mate from project node_modules instead of parent
+     */
+    var cwd = process.cwd();
+    process.chdir(__dirname + '/..'); // jump out of tasks subdir
+    grunt.loadNpmTasks('grunt-copy-mate');
+    process.chdir(cwd);
 
 
     var Builder = require( '../' ).Builder;
@@ -13,6 +22,18 @@ module.exports = function( grunt ) {
             done = this.async();
 
         grunt.verbose.writeflags( options, "Options" );
+
+        if( process.platform === "win32" ) {
+
+            if( options.outputImage )
+               options.outputImage = options.outputImage.split("/").join("\\");
+
+           if( options.output && options.output.legacy.outputImage )
+               options.output.legacy.outputImage = options.output.legacy.outputImage.split("/").join("\\");
+
+           if( options.output && options.output.retina.outputImage )
+               options.output.retina.outputImage = options.output.retina.outputImage.split("/").join("\\");
+        }
 
 
         var srcFiles;
@@ -41,6 +62,7 @@ module.exports = function( grunt ) {
                 var copiedFiles = createTmp( file ),
                     tf,
                     trimmedFiles = [],
+                    srcArr = [],
                     trimmed = 0;
 
                 /**
@@ -49,15 +71,29 @@ module.exports = function( grunt ) {
                 for( var i = 0; i < copiedFiles.length; i++ ) {
                     tf = copiedFiles[ i ];
 
+                    // grunt-copy-mate 0.1.3 returns an object
+                    if( typeof tf === "object" ) {
+                        tf = tf.destDir + tf.curDir + tf.filename;
+                        // console.log( "test", tf );
+                    }
+
+
                     trimImg( i, tf, tf, function( id, left, top ) {
 
-                        trimmedFiles.push( { id:id, left:left, top:top, src: copiedFiles[id] } );
+                        var src = copiedFiles[id];
+                        if( typeof src === "object" ) {
+                            src = src.destDir + src.curDir + src.filename;
+                        }
+
+                        srcArr.push( src );
+
+                        trimmedFiles.push( { id:id, left:left, top:top, src: src } );
                         trimmed++;
 
                         if( trimmed === copiedFiles.length ) {
                             grunt.log.ok( "trim complete" );
-
-                            options.images = copiedFiles;
+                            
+                            options.images = srcArr;
 
                             builder = Builder.fromGruntTask( options );
                             builder.build(function() {
@@ -66,7 +102,7 @@ module.exports = function( grunt ) {
                                 if( options.trim.cssMargins !== false )
                                     addMarginsToCss( file.dest + "/" + options.outputCss, trimmedFiles, options.selector );
 
-                                grunt.file.delete( "tmp" );
+                                grunt.file.delete( "tmp-node-spritesheet" );
 
                                 callback();
                             });
@@ -86,10 +122,6 @@ module.exports = function( grunt ) {
     });
 
     
-    // grunt.loadNpmTasks("grunt-copy-mate");
-    grunt.loadTasks('../node_modules/grunt-copy-mate/tasks');
-
-
 
 
     // Trim helper methods
@@ -97,6 +129,9 @@ module.exports = function( grunt ) {
         /**
          * Trims off transparent edges from images. 
          */
+
+        // console.log( fromPath );
+        // return
 
         var child = grunt.util.spawn({
             cmd:"convert"
@@ -112,7 +147,7 @@ module.exports = function( grunt ) {
                 ,imgCoords = resultArr[3]
                 ,coordsArr = imgCoords.split("+")
                 ,left = coordsArr[1]
-                ,top = coordsArr[2]
+                ,top = coordsArr[2];
 
             
             // if error, probably means it has no pixels left, so delete the file
@@ -158,12 +193,17 @@ module.exports = function( grunt ) {
          */
         for( var i = 0; i < file.orig.src.length; i++ ) {
 
+
             var asterixIndex = file.orig.src[i].indexOf( "*" );
             if( asterixIndex === -1 )
                 grunt.log.warn( "single files not supported with 'trim' feature. 'src' must be a directory with a '*' wildcard selector." );
-            else
-                copiedFiles = grunt.copy_mate.recursiveCopy( file.orig.src[i].slice( 0, asterixIndex-1 ), "tmp/" );
+            else {
+
+                // console.log( "file.orig", grunt.copy_mate );
+                copiedFiles = grunt.copy_mate.recursiveCopy( file.orig.src[i].slice( 0, asterixIndex-1 ), "tmp-node-spritesheet/" );
+            }
         };
+
 
         return copiedFiles;
     }

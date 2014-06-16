@@ -232,3 +232,10 @@ resampling option, if you want finer control.
     
     // Add to your imports.
     loadNpmTasks( 'node-spritesheet' );
+
+
+## History
+0.1.6 Made compatible with grunt-copy-mate 0.1.3.
+0.1.2-4 Fixed relative path to grunt-copy-mate module.
+0.1.1 Fixed some path issues for Windows.
+0.1.0 Initial port (example working on Mac)
