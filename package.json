@@ -1,7 +1,7 @@
 {
     "name": "jimdoyle82-node-spritesheet",
     "description": "Sprite sheet generator for node.js with trim features added by jimdoyle82. Forked from https://github.com/richardbutler/node-spritesheet.",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "author": {
         "name": "Jim Doyle",
         "email": "jimdoyle82@gmail.com"
@@ -20,7 +20,6 @@
         "underscore": "~1.4.2",
         "grunt": "~0.4.1",
         "grunt-contrib-coffee": "~0.7.0",
-        "grunt-contrib-clean": "~0.5.0",
         "grunt-copy-mate": "0.1.3"
     }
 }

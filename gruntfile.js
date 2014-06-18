@@ -14,16 +14,17 @@ module.exports = function(grunt) {
                     'lib/layout.js': 'src/layout.coffee'
                 }
             }
-        },
-        clean: {
+        }
+        /*,clean: {
             client: {
                 src: [ 'lib' ]
             }
-        }
+        }*/
     });
     
     grunt.loadNpmTasks('grunt-contrib-coffee');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-
-    grunt.registerTask('default', [ 'clean', 'coffee' ]);
+    // grunt.loadNpmTasks('grunt-contrib-clean');
+    //'clean', 
+    
+    grunt.registerTask('default', [ 'coffee' ]);
 };
