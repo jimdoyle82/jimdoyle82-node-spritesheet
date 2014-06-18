@@ -98,12 +98,15 @@ module.exports = function( grunt ) {
                             builder = Builder.fromGruntTask( options );
                             builder.build(function() {
 
+                                tidyUpCss( file.dest + "/" + options.outputCss, trimmedFiles, options.selector, !!(options.trim.safeTidyUp) );
+
                                 // Always add css margins unless trim.cssMargins is defined and is set to false
                                 if( options.trim.cssMargins !== false )
                                     addMarginsToCss( file.dest + "/" + options.outputCss, trimmedFiles, options.selector );
 
                                 grunt.file.delete( "tmp-node-spritesheet" );
 
+                                options.spriteCompleteCallback( trimmedFiles );
                                 callback();
                             });
 
@@ -164,6 +167,50 @@ module.exports = function( grunt ) {
             }
         });
     }, // end trimImg
+    tidyUpCss = function( cssSrc, trimmedFiles, selector, safeTidyUp ) {
+
+        var css = grunt.file.read( cssSrc );
+
+        for( var j = 0; j < trimmedFiles.length; j++ ) {
+
+            var data = trimmedFiles[j],
+                thisSrc = data.src,
+                lastSlashIndex = thisSrc.lastIndexOf("/"),
+                lastDotIndex = thisSrc.lastIndexOf("."),
+                imgClassName = thisSrc.slice( lastSlashIndex+1, lastDotIndex ),
+                classDeclLine = selector + "." + imgClassName + " {";
+
+            grunt.log.ok( "running tidy up on: " + cssSrc, "options.trim.safeTidyUp = " + safeTidyUp );
+
+            if( safeTidyUp ) {
+                css = css.replace( classDeclLine, ( !data.top || !data.left ? "\n/*remove*/\n" : "" ) + classDeclLine );
+            } else if( !data.top || !data.left ) {
+                css = replaceBetween( classDeclLine, "}", css );
+            }
+        }
+
+        grunt.file.write( cssSrc, css );
+    },
+    replaceBetween = function(rxStart, rxEnd, originalString, replacementString, keepDelimeteres ) {
+        // Notes: 
+        // REF: http://www.developerscloset.com/?p=548
+        // 1. In this expression "\\d\\D" makes sure line breaks are included
+        // 2. And "*?" means that everything will be replaced between
+        // 3. "g" stands for global, which means it will look through the entire string
+        // 4. If you want to escape a "/", you must make it "\/"
+        // 5. If you want to escape an "*", you must make it "\\*"
+
+        var rx = new RegExp( rxStart + "[\\d\\D]*?" + rxEnd, "g"),
+            result;
+        
+        if( keepDelimeteres === true ) {
+            result = originalString.replace( rx, rxStart + (replacementString || "") + rxEnd );
+        } else {
+            result = originalString.replace( rx, (replacementString || "") );
+        }
+
+        return result;
+    },
     addMarginsToCss = function( cssSrc, trimmedFiles, selector ) {
         /**
          * Add margins to css file to compensate for trimmed space

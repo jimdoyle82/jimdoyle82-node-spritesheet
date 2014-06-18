@@ -1,25 +1,35 @@
 {
-    "name": "jimdoyle82-node-spritesheet",
-    "description": "Sprite sheet generator for node.js with trim features added by jimdoyle82. Forked from https://github.com/richardbutler/node-spritesheet.",
-    "version": "0.1.8",
-    "author": {
-        "name": "Jim Doyle",
-        "email": "jimdoyle82@gmail.com"
-    },
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/jimdoyle82/node-spritesheet"
-    },
-    "main": "./index",
-    "scripts": {
-        "install": "grunt"
-    },
-    "dependencies": {
-        "async": "~0.1.22",
-        "q-fs": "~0.1.32",
-        "underscore": "~1.4.2",
-        "grunt": "~0.4.1",
-        "grunt-contrib-coffee": "~0.7.0",
-        "grunt-copy-mate": "0.1.3"
-    }
+  "name": "jimdoyle82-node-spritesheet",
+  "description": "Sprite sheet generator for node.js with trim features added by jimdoyle82. Forked from https://github.com/richardbutler/node-spritesheet.",
+  "version": "0.1.9",
+  "author": {
+    "name": "Jim Doyle",
+    "email": "jimdoyle82@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/jimdoyle82/node-spritesheet"
+  },
+  "main": "./index",
+  "scripts": {
+    "install": "grunt"
+  },
+  "dependencies": {
+    "async": "~0.1.22",
+    "q-fs": "~0.1.32",
+    "underscore": "~1.4.2",
+    "grunt": "~0.4.1",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-copy-mate": "0.1.3"
+  },
+  "readme": "# node-spritesheet\r\n\r\nNode-spritesheet is a utility to create sprite sheets in node.js. Its original\r\nintention was to be used as a [Grunt](https://github.com/cowboy/grunt) task,\r\nbut I decided it was worth abstracting further.\r\n\r\nIn the most part, it is an indirect port of\r\n[Jake Gordon](https://github.com/jakesgordon)'s much more mature\r\n[Sprite Factory for Ruby](https://github.com/jakesgordon/sprite-factory).\r\n\r\n## Pixel ratios (retina displays, etc)\r\n\r\nIt will also handle auto-resizing of images for specified pixel\r\ndensities. No more fart-arsing about for retina displays, just supply the\r\nlargest (highest-density) image. By default, this uses ImageMagick's version of\r\nthe Lanczos and Mitchell algorithms, depending on the most appropriate, but you\r\ncan specify any of the 20-odd [available](http://www.imagemagick.org/script/command-line-options.php#filter).\r\n\r\nYou're not locked in to auto-resampling though, you can supply multiple density\r\nversions of the same image, if you prefer.\r\n\r\nAdditionally, it will add the relevant cross-browser media queries to the CSS.\r\n\r\n## Requirements\r\n\r\nRequires [ImageMagick](http://www.imagemagick.org), available via HomeBrew (`$ sudo brew install ImageMagick`) or MacPorts: (`$ sudo port install ImageMagick`).\r\n\r\n## Installation\r\n\r\n\tnpm install node-spritesheet\r\n\r\n## Usage\r\n\r\n\tvar Builder = require( 'node-spritesheet' ).Builder;\r\n\tvar b = new Builder( options );\r\n\tb.build( callback );\r\n\r\n### Simple example\r\n\r\nTakes in a series of images a generates a spritesheet.\r\n\r\n    var Builder = require( 'node-spritesheet' ).Builder;\r\n    \r\n    var builder = new Builder({\r\n        outputDirectory: '/path/to/directory',\r\n        outputImage: 'sprite.png',\r\n        outputCss: 'sprite.css',\r\n        selector: '.sprite',\r\n        images: [ 'image1.png', 'image2.png', 'image3.png' ]\r\n    });\r\n    \r\n    builder.build( function() {\r\n        console.log( \"Built from \" + builder.files.length + \" images\" );\r\n    });\r\n\r\n### More complex example\r\n\r\nAdd configurations to the builder to output multiple spritesheets based on\r\ndifferent pixel densities, using media queries.\r\n\r\n    var Builder = require( 'node-spritesheet' ).Builder;\r\n    \r\n    var builder = new Builder({\r\n        outputDirectory: '/path/to/directory',\r\n        outputCss: 'sprite.css',\r\n        selector: '.sprite',\r\n        images: [ 'image1.png', 'image2.png', image3.png' ]\r\n    });\r\n    \r\n    builder.addConfiguration( \"legacy\", {\r\n        pixelRatio: 1,\r\n        outputImage: 'sprite.png'\r\n    });\r\n    \r\n    builder.addConfiguration( \"retina\", {\r\n        pixelRatio: 2,\r\n        outputImage: 'sprite@2x.png'\r\n    });\r\n    \r\n    builder.build( function() {\r\n        console.log( \"Built from \" + builder.files.length + \" images\" );\r\n    });\r\n\r\n### Another complex example\r\n\r\nEven though ImageMagick uses some pretty decent algorithms for resampling images,\r\nyou may not want node-spritesheet to automatically resize your retina versions\r\nfor you, you may want to instead keep two copies of each image.\r\n\r\n    var Builder = require( 'node-spritesheet' ).Builder;\r\n    \r\n    var builder = new Builder({\r\n        outputDirectory: '/path/to/directory',\r\n        outputCss: 'sprite.css',\r\n        selector: '.sprite'\r\n    });\r\n    \r\n    builder.addConfiguration( \"legacy\", {\r\n        pixelRatio: 1,\r\n        outputImage: 'sprite.png',\r\n        images: [ 'image1.png', 'image2.png', image3.png' ]\r\n    });\r\n    \r\n    builder.addConfiguration( \"retina\", {\r\n        pixelRatio: 2,\r\n        outputImage: 'sprite@2x.png',\r\n        images: [ 'image1@2x.png', 'image2@2x.png', image3@2x.png' ]\r\n    });\r\n    \r\n    builder.build( function() {\r\n        console.log( \"Built from \" + builder.files.length + \" images\" );\r\n    });\r\n\r\n## Grunt task\r\n\r\nThis is a multi-task, supporting multiple spritesheets in one gruntfile.\r\n\r\nThe following grunt.js structure takes all images in src/icons and creates\r\na spritesheet at bin/assets/sprite.png, with an accompanying stylesheet at\r\nbin/assets/sprite.css.\r\n\r\n### Simple example\r\n\r\n    // Add to your grunt config.\r\n\tspritesheet: {\r\n\t\tcompile: {\r\n\t\t\toptions: {\r\n\t\t\t\t// Compiles to bin/assets/images/spritesheets/flags.png\r\n\t\t\t\toutputImage: 'images/spritesheets/flags.png',\r\n\t\t\t\t// Compiles to bin/assets/stylesheets/flags.css\r\n\t\t\t\toutputCss: 'stylesheets/flags.css',\r\n\t\t\t\t// Uses this compound selector in the css, e.g. '.flag.my-image {}'\r\n\t\t\t\tselector: '.flag'\r\n\t\t\t},\r\n\t\t\tfiles: {\r\n\t\t\t\t'bin/assets': 'src/icons/flags/*'\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n\t\r\n\t// Add to your imports.\r\n\tloadNpmTasks( 'node-spritesheet' );\r\n\r\n### Complex example\r\n\r\nThis adds retina/legacy support, and resamples the images (assuming the\r\nhighest density has been supplied).\r\n\r\n    // Add to your grunt config.\r\n    spritesheet: {\r\n        compile: {\r\n            options: {\r\n                outputCss: 'sprite.css',\r\n                selector: '.sprite',\r\n                \r\n                // Optional ImageMagick sampling filter.\r\n                downsampling: \"LanczosSharp\",\r\n                \r\n                // Optional absolute path to output image.\r\n                httpImagePath: \"http://static.mysite.com/images/sprite.png\",\r\n                \r\n                // Output configurations: in this instance to output two sprite sheets,\r\n                // one for \"legacy\" (i.e. 72dpi, pixel ratio 1), and \"retina\" (x2).\r\n                // These keys (legacy, retina) are completely arbitrary.\r\n                output: {\r\n                    legacy: {\r\n                        pixelRatio: 1,\r\n                        outputImage: 'sprite.png'\r\n                    },\r\n                    // As the retina scheme has the highest pixel ratio, it will be\r\n                    // assumed that all images passed to the builder are for 'retina',\r\n                    // and will be downscaled for 'legacy'.\r\n                    retina: {\r\n                        pixelRatio: 2,\r\n                        outputImage: 'sprite@2x.png'\r\n                    }\r\n                },\r\n                \r\n                // Allows you to augment your selector names for each image, based on\r\n                // the bare image \"name\", or the full image path.\r\n                resolveImageSelector: function( name, fullpath ) {\r\n                    // For example, your files may well already be named with @2x, but\r\n                    // you won't want that included in your CSS selectors.\r\n                    return name.split( \"@2x\" ).join( \"\" );\r\n                }\r\n            },\r\n            files: {\r\n                'bin/assets': 'src/icons/flags/*'\r\n            }\r\n        }\r\n    }\r\n    \r\n    // Add to your imports.\r\n    loadNpmTasks( 'node-spritesheet' );\r\n\r\n### Second complex example\r\n\r\nAgain, this adds retina/legacy support, but uses a filter function to ascertain\r\nwhich images are retina and which aren't, meaning you don't have to rely on the\r\nresampling option, if you want finer control.\r\n\r\n    // Add to your grunt config.\r\n    spritesheet: {\r\n        compile: {\r\n            options: {\r\n                outputCss: 'sprite.css',\r\n                selector: '.sprite',\r\n                output: {\r\n                    legacy: {\r\n                        pixelRatio: 1,\r\n                        outputImage: 'sprite.png',\r\n                        // Just process the non-retina files\r\n                        filter: function( fullpath ) {\r\n                            return fullpath.indexOf( \"@2x\" ) === -1;\r\n                        }\r\n                    },\r\n                    retina: {\r\n                        pixelRatio: 2,\r\n                        outputImage: 'sprite@2x.png',\r\n                        // Just process the retina files\r\n                        filter: function( fullpath ) {\r\n                            return fullpath.indexOf( \"@2x\" ) >= 0;\r\n                        }\r\n                    }\r\n                }\r\n            },\r\n            files: {\r\n                'bin/assets': 'src/icons/flags/*'\r\n            }\r\n        }\r\n    }\r\n    \r\n    // Add to your imports.\r\n    loadNpmTasks( 'node-spritesheet' );\r\n\r\n\r\n## History\r\n0.1.6 Made compatible with grunt-copy-mate 0.1.3.\r\n0.1.2-4 Fixed relative path to grunt-copy-mate module.\r\n0.1.1 Fixed some path issues for Windows.\r\n0.1.0 Initial port (example working on Mac)",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/jimdoyle82/node-spritesheet/issues"
+  },
+  "homepage": "https://github.com/jimdoyle82/node-spritesheet",
+  "_id": "jimdoyle82-node-spritesheet@0.1.8",
+  "_shasum": "26175f427ead9dc43e65f4660a65b17d1db42468",
+  "_from": "jimdoyle82-node-spritesheet@0.1.8",
+  "_resolved": "https://registry.npmjs.org/jimdoyle82-node-spritesheet/-/jimdoyle82-node-spritesheet-0.1.8.tgz"
 }
